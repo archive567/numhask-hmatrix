@@ -43,6 +43,8 @@ library
     -Wincomplete-record-updates
     -Wincomplete-uni-patterns
     -Wredundant-constraints
+    -fwrite-ide-info
+    -hiedir=.hie
   build-depends:
     base >=4.11 && <5,
     adjunctions >=4.0 && <5,
