@@ -4,3 +4,6 @@ TAGS
 .stack-work
 /dist-newstyle
 /stack.yaml.lock
+/.ghc.environment.x86_64-darwin-8.10.4
+/.hie/
+/cabal.project.local*

@@ -1,6 +1,4 @@
 cradle:
-  stack:
+  cabal:
     - path: "./src/"
-      component: "numhask-hmatrix:lib"
-    - path: "./test/"
-      component: "numhask-hmatrix:test"
+      component: "numhask-hmatrix:lib:numhask-hmatrix"

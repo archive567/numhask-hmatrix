@@ -18,7 +18,7 @@
 
 -- | Arrays with a fixed shape, with a HMatrix representation.
 module NumHask.Array.HMatrix
-  ( -- $setup
+  ( -- $usage
     Array (..),
 
     -- * Representation
@@ -74,31 +74,34 @@ module NumHask.Array.HMatrix
   )
 where
 
-import Data.List ((!!))
 import qualified Data.Vector as V
 import GHC.Exts (IsList (..))
 import GHC.TypeLits
 import qualified NumHask.Array.Dynamic as D
 import qualified NumHask.Array.Fixed as F
 import NumHask.Array.Shape
-import NumHask.Prelude as P hiding (transpose)
+import NumHask.Prelude as P
 import qualified Numeric.LinearAlgebra as H
 import qualified Numeric.LinearAlgebra.Devel as H
 import qualified Prelude
+import Control.DeepSeq (NFData (..))
+import Data.Proxy (Proxy(..))
 
 -- $setup
 -- >>> :set -XDataKinds
 -- >>> :set -XOverloadedLists
 -- >>> :set -XTypeFamilies
 -- >>> :set -XFlexibleContexts
--- >>> let s = [1] :: Array ('[] :: [Nat]) Int -- scalar
--- >>> let v = [1,2,3] :: Array '[3] Int       -- vector
--- >>> let m = [0..11] :: Array '[3,4] Int     -- matrix
--- >>> let a = [1..24] :: Array '[2,3,4] Int
+-- >>> import GHC.TypeLits
+-- >>> import GHC.Int
+-- >>> let s = [1] :: Array ('[] :: [Nat]) Int64 -- scalar
+-- >>> let v = [1,2,3] :: Array '[3] Int64       -- vector
+-- >>> let m = [0..11] :: Array '[3,4] Int64     -- matrix
+-- >>> let a = [1..24] :: Array '[2,3,4] Int64
 
 -- | a multidimensional array with a type-level shape
 --
--- >>> let a = [1..24] :: Array '[2,3,4] Int
+-- >>> let a = [1..24] :: Array '[2,3,4] Int64
 -- >>> a
 -- [[[1, 2, 3, 4],
 --   [5, 6, 7, 8],
@@ -107,7 +110,7 @@ import qualified Prelude
 --   [17, 18, 19, 20],
 --   [21, 22, 23, 24]]]
 --
--- >>> [1,2,3] :: Array '[2,2] Int
+-- >>> [1,2,3] :: Array '[2,2] Int64
 -- [[*** Exception: NumHaskException {errorMessage = "shape mismatch"}
 newtype Array s a = Array {unArray :: H.Matrix a}
   deriving (Show, NFData, Generic)
@@ -267,7 +270,7 @@ tabulate f =
 
 -- | Reshape an array (with the same number of elements).
 --
--- >>> reshape a :: Array '[4,3,2] Int
+-- >>> reshape a :: Array '[4,3,2] Int64
 -- [[[1, 2],
 --   [3, 4],
 --   [5, 6]],
@@ -303,7 +306,7 @@ transpose a = tabulate (index a . reverse)
 
 -- | The identity array.
 --
--- >>> ident :: Array '[3,2] Int
+-- >>> ident :: Array '[3,2] Int64
 -- [[1, 0],
 --  [0, 1],
 --  [0, 0]]
@@ -317,7 +320,7 @@ ident = tabulate (bool zero one . isDiag)
 
 -- | Extract the diagonal of an array.
 --
--- >>> diag (ident :: Array '[3,2] Int)
+-- >>> diag (ident :: Array '[3,2] Int64)
 -- [1, 1]
 diag ::
   forall a s.
@@ -336,7 +339,7 @@ diag a = tabulate go
 
 -- | Create an array composed of a single value.
 --
--- >>> singleton one :: Array '[3,2] Int
+-- >>> singleton one :: Array '[3,2] Int64
 -- [[1, 1],
 --  [1, 1],
 --  [1, 1]]
@@ -347,7 +350,7 @@ singleton a = tabulate (const a)
 --
 -- >>> let s = selects (Proxy :: Proxy '[0,1]) [1,1] a
 -- >>> :t s
--- s :: Array '[4] Int
+-- s :: Array '[4] Int64
 --
 -- >>> s
 -- [17, 18, 19, 20]
@@ -373,7 +376,7 @@ selects _ i a = tabulate go
 --
 -- >>> let s = selectsExcept (Proxy :: Proxy '[2]) [1,1] a
 -- >>> :t s
--- s :: Array '[4] Int
+-- s :: Array '[4] Int64
 --
 -- >>> s
 -- [17, 18, 19, 20]
@@ -423,7 +426,7 @@ folds f d a = tabulate go
 -- | Concatenate along a dimension.
 --
 -- >>> :t concatenate (Proxy :: Proxy 1) a a
--- concatenate (Proxy :: Proxy 1) a a :: Array '[2, 6, 4] Int
+-- concatenate (Proxy :: Proxy 1) a a :: Array '[2, 6, 4] Int64
 concatenate ::
   forall a s0 s1 d s.
   ( CheckConcatenate d s0 s1 s,
@@ -495,7 +498,7 @@ insert _ _ a b = tabulate go
 --
 -- >>>  :t append (Proxy :: Proxy 0) a
 -- append (Proxy :: Proxy 0) a
---   :: Array '[3, 4] Int -> Array '[3, 3, 4] Int
+--   :: Array '[3, 4] Int64 -> Array '[3, 3, 4] Int64
 append ::
   forall a d s s'.
   ( DropIndex s d ~ s',
@@ -518,7 +521,7 @@ append d = insert d (Proxy :: Proxy (Dimension s d - 1))
 --
 -- >>> let r = reorder (Proxy :: Proxy '[2,0,1]) a
 -- >>> :t r
--- r :: Array '[4, 2, 3] Int
+-- r :: Array '[4, 2, 3] Int64
 reorder ::
   forall a ds s.
   ( HasShape ds,
@@ -574,7 +577,7 @@ expand f a b = tabulate (\i -> f (index a (take r i)) (index b (drop r i)))
 --
 -- >>> let s = slice (Proxy :: Proxy '[[0,1],[0,2],[1,2]]) a
 -- >>> :t s
--- s :: Array '[2, 2, 2] Int
+-- s :: Array '[2, 2, 2] Int64
 --
 -- >>> s
 -- [[[2, 3],
@@ -584,7 +587,7 @@ expand f a b = tabulate (\i -> f (index a (take r i)) (index b (drop r i)))
 --
 -- >>> let s = squeeze $ slice (Proxy :: Proxy '[ '[0], '[0], '[0]]) a
 -- >>> :t s
--- s :: Array '[] Int
+-- s :: Array '[] Int64
 --
 -- >>> s
 -- 1
@@ -608,7 +611,7 @@ slice pss a = tabulate go
 
 -- | Remove single dimensions.
 --
--- >>> let a = [1..24] :: Array '[2,1,3,4,1] Int
+-- >>> let a = [1..24] :: Array '[2,1,3,4,1] Int64
 -- >>> a
 -- [[[[[1],
 --     [2],
@@ -661,7 +664,7 @@ type Scalar a = Array ('[] :: [Nat]) a
 
 -- | Unwrapping scalars is probably a performance bottleneck.
 --
--- >>> let s = [3] :: Array ('[] :: [Nat]) Int
+-- >>> let s = [3] :: Array ('[] :: [Nat]) Int64
 -- >>> fromScalar s
 -- 3
 fromScalar :: (H.Element a, H.Container H.Vector a, HasShape ('[] :: [Nat])) => Array ('[] :: [Nat]) a -> a
@@ -745,8 +748,8 @@ safeCol _j (Array a) = Array $ H.takeColumns j a
 --
 -- This is dot sum (*) specialised to matrices
 --
--- >>> let a = [1, 2, 3, 4] :: Array '[2, 2] Int
--- >>> let b = [5, 6, 7, 8] :: Array '[2, 2] Int
+-- >>> let a = [1, 2, 3, 4] :: Array '[2, 2] Int64
+-- >>> let b = [5, 6, 7, 8] :: Array '[2, 2] Int64
 -- >>> a
 -- [[1, 2],
 --  [3, 4]]
