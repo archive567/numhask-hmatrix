@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE RankNTypes #-}
@@ -84,7 +83,6 @@ import NumHask.Prelude as P
 import qualified Numeric.LinearAlgebra as H
 import qualified Numeric.LinearAlgebra.Devel as H
 import qualified Prelude
-import Control.DeepSeq (NFData (..))
 import Data.Proxy (Proxy(..))
 
 -- $setup
@@ -113,7 +111,7 @@ import Data.Proxy (Proxy(..))
 -- >>> [1,2,3] :: Array '[2,2] Int64
 -- [[*** Exception: NumHaskException {errorMessage = "shape mismatch"}
 newtype Array s a = Array {unArray :: H.Matrix a}
-  deriving (Show, NFData, Generic)
+  deriving (Show, Generic)
 
 instance
   ( Additive a,
