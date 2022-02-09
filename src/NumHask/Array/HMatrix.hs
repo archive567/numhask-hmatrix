@@ -163,18 +163,12 @@ instance
   (.*) s (Array r) = Array $ H.cmap (s *) r
   {-# INLINE (.*) #-}
 
-  (*.) (Array r) s = Array $ H.cmap (*s) r
-  {-# INLINE (*.) #-}
-
 instance
   (HasShape s, Additive a, H.Container H.Vector a, Num a) =>
   AdditiveAction (Array s a) a
   where
   (.+) s (Array r) = Array $ H.cmap (s +) r
   {-# INLINE (.+) #-}
-
-  (+.) (Array r) s = Array $ H.cmap (+s) r
-  {-# INLINE (+.) #-}
 
 instance
   (HasShape s, Subtractive a, H.Container H.Vector a, Num a) =>
@@ -183,18 +177,12 @@ instance
   (.-) s (Array r) = Array $ H.cmap (s -) r
   {-# INLINE (.-) #-}
 
-  (-.) (Array r) s = Array $ H.cmap (\x -> x - s) r
-  {-# INLINE (-.) #-}
-
 instance
   (HasShape s, Divisive a, H.Container H.Vector a, Num a) =>
   DivisiveAction (Array s a) a
   where
   (./) s (Array r) = Array $ H.cmap (s /) r
   {-# INLINE (./) #-}
-
-  (/.) (Array r) s = Array $ H.cmap (/ s) r
-  {-# INLINE (/.) #-}
 
 -- | from flat list
 instance
