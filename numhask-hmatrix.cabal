@@ -30,8 +30,8 @@ library
   build-depends:
     , base           >=4.11  && <5
     , hmatrix        ^>=0.20
-    , numhask        ^>=0.8.1
-    , numhask-array  ^>=0.9
+    , numhask        >=0.8.1 && <0.11
+    , numhask-array  >=0.9 && <0.11
     , vector         >=0.10  && <0.13
 
   exposed-modules:    NumHask.Array.HMatrix
